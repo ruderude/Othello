@@ -21,20 +21,25 @@ for (let row = 0; row < 8; row++) {
 
 canvas.addEventListener('click', clickfunc, true);
 
-function clickfunc (event) {
+function clickfunc (e) {
 	var x = y = 0;
 
-	x = event.clientX - canvas.offsetLeft;
-	y = event.clientY - canvas.offsetTop;
+	var rect = e.target.getBoundingClientRect();
+    x = e.clientX - rect.left;
+    y = e.clientY - rect.top;
 
-	const x_point = checkXY2(x)
-    const y_point = checkXY2(y)
+	const x_point = chengeXY(x)
+    const y_point = chengeXY(y)
+    // console.log(x)
+    // console.log(y)
+    // console.log(x_point)
+    // console.log(y_point)
     putStone(x_point,y_point, 'white')
 
 }
 
 
-function checkXY(num) {
+function makeZahyou(num) {
     let zahyou = 20
     switch (num) {
         case 0:
@@ -67,7 +72,7 @@ function checkXY(num) {
     return zahyou
 }
 
-function checkXY2(num) {
+function chengeXY(num) {
     if (num >= 0 && num <= 40) {
         return 0
     } else if(num >= 41 && num <= 80) {
@@ -80,7 +85,7 @@ function checkXY2(num) {
         return 4
     } else if(num>=201 && num<=240) {
         return 5
-    } else if(num>=241 && num<=820) {
+    } else if(num>=241 && num<=280) {
         return 6
     } else if(num>=281 && num<=320) {
         return 7
@@ -91,8 +96,8 @@ function checkXY2(num) {
 
 
 function putStone(x, y, color) {
-    const x_point = checkXY(x)
-    const y_point = checkXY(y)
+    const x_point = makeZahyou(x)
+    const y_point = makeZahyou(y)
     ctx.fillStyle = color;
     ctx.beginPath();
     ctx.arc(x_point, y_point, 16, 0, 2 * Math.PI);
