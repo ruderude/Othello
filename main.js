@@ -34,19 +34,19 @@ function clickfunc (e) {
 function chengeXY(num) {
     if (num >= 0 && num <= 40) {
         return 20
-    } else if(num >= 41 && num <= 80) {
+    } else if(num > 40 && num <= 80) {
         return 60
-    } else if(num>=81 && num<=120) {
+    } else if(num > 80 && num <= 120) {
         return 100
-    } else if(num>=121 && num<=160) {
+    } else if(num > 120 && num <= 160) {
         return 140
-    } else if(num>=161 && num<=200) {
+    } else if(num > 160 && num <= 200) {
         return 180
-    } else if(num>=201 && num<=240) {
+    } else if(num > 200 && num <= 240) {
         return 220
-    } else if(num>=241 && num<=280) {
+    } else if(num > 240 && num <= 280) {
         return 260
-    } else if(num>=281 && num<=320) {
+    } else if(num > 280 && num <= 320) {
         return 300
     } else {
         return 20
