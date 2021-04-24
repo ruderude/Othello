@@ -3,8 +3,7 @@ var canvas = document.getElementById("reversi")
 var ctx = canvas.getContext("2d")
 　　
 ctx.fillStyle = "black"
-// 縦の線を引く
-// `線` は 「二点間を結ぶ直線」 でしたね？
+
 for (let col = 0; col < 8; col++) {
     ctx.beginPath(); // Start a new path
     ctx.moveTo(40 * col, 0); // Move the pen to
@@ -28,83 +27,42 @@ function clickfunc (e) {
     x = e.clientX - rect.left;
     y = e.clientY - rect.top;
 
-	const x_point = chengeXY(x)
-    const y_point = chengeXY(y)
-    // console.log(x)
-    // console.log(y)
-    // console.log(x_point)
-    // console.log(y_point)
-    putStone(x_point,y_point, 'white')
+    putStone(x, y, 'white')
 
-}
-
-
-function makeZahyou(num) {
-    let zahyou = 20
-    switch (num) {
-        case 0:
-            zahyou = 20
-            break;
-        case 1:
-            zahyou = 60
-            break;
-        case 2:
-            zahyou = 100
-            break;
-        case 3:
-            zahyou = 140
-            break;
-        case 4:
-            zahyou = 180
-            break;
-        case 5:
-            zahyou = 220
-            break;
-        case 6:
-            zahyou = 260
-            break;
-        case 7:
-            zahyou = 300
-                break;
-        default:
-            zahyou = 20
-    }
-    return zahyou
 }
 
 function chengeXY(num) {
     if (num >= 0 && num <= 40) {
-        return 0
+        return 20
     } else if(num >= 41 && num <= 80) {
-        return 1
+        return 60
     } else if(num>=81 && num<=120) {
-        return 2
+        return 100
     } else if(num>=121 && num<=160) {
-        return 3
+        return 140
     } else if(num>=161 && num<=200) {
-        return 4
+        return 180
     } else if(num>=201 && num<=240) {
-        return 5
+        return 220
     } else if(num>=241 && num<=280) {
-        return 6
+        return 260
     } else if(num>=281 && num<=320) {
-        return 7
+        return 300
     } else {
-        return 0
+        return 20
     }
 }
 
-
 function putStone(x, y, color) {
-    const x_point = makeZahyou(x)
-    const y_point = makeZahyou(y)
+    const x_point = chengeXY(x)
+    const y_point = chengeXY(y)
     ctx.fillStyle = color;
     ctx.beginPath();
     ctx.arc(x_point, y_point, 16, 0, 2 * Math.PI);
     ctx.fill();
 }
 
-putStone(3, 3, "white")
-putStone(4, 3, "black")
-putStone(3, 4, "black")
-putStone(4, 4, "white")
+putStone(140, 140, "white")
+putStone(180, 140, "black")
+putStone(140, 180, "black")
+putStone(180, 180, "white")
