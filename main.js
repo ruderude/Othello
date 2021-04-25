@@ -31,7 +31,23 @@ for (let row = 0; row < 8; row++) {
     ctx.stroke();
 }
 
-function changePlayer(){
+function countStone() {
+    let white = 0
+    let black = 0
+    for (let x = 0; x < 7; x++) {
+        for (let y = 0; y < 7; y++) {
+            if (playBoard[y][x] == 1) {
+                white++
+            } else if (playBoard[y][x] == 2) {
+                black++
+            }
+        }
+    }
+    const countStone = document.getElementById("countStone")
+    countStone.innerHTML = "白が" + white + "個、黒が" + black + "個"
+}
+
+function changePlayer() {
     if(player == 1){
         player = 2
         displayPlayer.innerText = "black"
