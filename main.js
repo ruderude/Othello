@@ -1,98 +1,204 @@
-var canvas = document.getElementById("reversi")
-var displayPlayer = document.getElementById("player")
-var log = document.getElementById("log")
-var ctx = canvas.getContext("2d")
-var playBoard = [
-	[0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0],
-    [0,0,0,0,0,0,0,0],
-]
 
-var player = 1
-displayPlayer.innerText = "white"
+// 定数の宣言
+const WHITE = 1;
+const BLACK = 2;
+const COLUMN_SIZE = 8;
+const FIELD_SIZE = 400;
+const BLOCK_SIZE = FIELD_SIZE / COLUMN_SIZE;
+// canvas取得
+const canvas = document.getElementById("canvas");
+// 描画する機能を持ったオブジェクトを取り出す
+const ctx = canvas.getContext("2d");
 
-ctx.fillStyle = "black"
-
-for (let col = 0; col < 8; col++) {
-    ctx.beginPath(); // Start a new path
-    ctx.moveTo(40 * col, 0); // Move the pen to
-    ctx.lineTo(40 * col, 320); // Draw a line to
-    ctx.stroke();
-}
-for (let row = 0; row < 8; row++) {
-    ctx.beginPath(); // Start a new path
-    ctx.moveTo(0, 40 * row); // Move the pen to
-    ctx.lineTo(320, 40 * row); // Draw a line to 
-    ctx.stroke();
+// 誰の手番か
+let currentPlayer = "white";
+// 手番の交代時に呼び出す関数
+function changePlayer() {
+    currentPlayer = currentPlayer === "white" ? "black" : "white";
 }
 
-function changePlayer(){
-    if(player == 1){
-        player = 2
-        displayPlayer.innerText = "black"
-    }else{
-        player = 1
-        displayPlayer.innerText = "white"
+// 方向の配列を定義する
+// ここが一番のポイントかもしれません
+// これが配列として定義してあることで、コード全体がすっきりします
+const directions = [
+    { name: "上方向", x: 0, y: -1 },
+    { name: "下方向", x: 0, y: 1 },
+    { name: "左方向", x: -1, y: 0 },
+    { name: "右方向", x: 1, y: 0 },
+    { name: "左上方向", x: -1, y: -1 },
+    { name: "左下方向", x: -1, y: 1 },
+    { name: "右下方向", x: 1, y: 1 },
+    { name: "右上方向", x: 1, y: -1 },
+];
+
+// ---------- 盤面データ
+// banmenの二次元配列データを元に、canvasに石を実際に配置する
+// 基本的に、この配列を操作して、この配列データを元にデータを描画すれば
+// あらゆるオセロの盤面が表現できます
+const banmen = [
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 2, 1, 0, 0, 0],
+    [0, 0, 0, 1, 2, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+];
+// 8 x 8 => 64区画を描画する
+banmen.drawReversiFiledLines = () => {
+    // 線の幅
+    ctx.fillStyle = "green"
+    ctx.fillRect(0, 0, FIELD_SIZE, FIELD_SIZE)
+    ctx.lineWidth = 1;
+    for (let i = 1; i < COLUMN_SIZE; i++) {
+        ctx.beginPath();
+        // 横の線
+        ctx.moveTo(0, BLOCK_SIZE * i);
+        ctx.lineTo(FIELD_SIZE, BLOCK_SIZE * i);
+        // 縦の線
+        ctx.moveTo(BLOCK_SIZE * i, 0);
+        ctx.lineTo(BLOCK_SIZE * i, FIELD_SIZE);
+        ctx.closePath();
+        ctx.stroke();
     }
-}
+};
 
-function canPutStoneCheck(x, y) {
-    return playBoard[y][x] === 0 ? true : false
-}
-
-function putStone(x, y, player) {
-    let color = "white"
-    if(player == 1){
-        color = "white"
-    }else{
-        color = "black"
+// banmenデータから石を描画
+// 全ての配列データを取り出して、石を配置する関数を呼び出している
+banmen.refresh = function () {
+    banmen.drawReversiFiledLines()
+    for (let x = 0; x < COLUMN_SIZE; x++) {
+        for (let y = 0; y < COLUMN_SIZE; y++) {
+            drawStone(x, y, this[y][x]);
+        }
     }
-	ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.arc(x, y, 16, 0, 2 * Math.PI);
-    ctx.fill();
-}
+};
 
-// クリックした座標に石を置く
-function putStoneAt(event){
-	// HTMLの中にCANVASがあるので、CANVASのどの位置をクリックしたか
- 	// 調整するために、CANVASとHTMLの位置関係から補正しています
-    var rect = event.target.getBoundingClientRect();
-    x = event.clientX - rect.left;
-    y = event.clientY - rect.top;
-    x = x - x % 40 + 20 // キリが良い箇所に配置されるようにx座標を補正
-    y = y - y % 40 + 20 // キリが良い箇所に配置されるようにy座標を補正
-    var posX = (x-20) / 40
-    var posY = (y-20) / 40
-    if (canPutStoneCheck(posX, posY)) {
-        putStone(x, y, player)
-    } else {
-        console.log('そこに石は置けません！')
-        return false
+// banmenデータから石が置けるマスを目立たせる
+// 石が置けるマスをハイライト表示するための関数
+// 通常のマスより少し小さく描画しています
+banmen.highlight = function () {
+    const MARGIN_SIZE = 2;
+    let playerColor = currentPlayer === "white" ? 1 : 2; 
+    for (let x = 0; x < COLUMN_SIZE; x++) {
+        for (let y = 0; y < COLUMN_SIZE; y++) {
+            if(canPutStone(x, y, playerColor, true)){
+                // 石が置ける場合はハイライト表示する
+                ctx.fillStyle = "#3cb371";
+                ctx.fillRect(x * BLOCK_SIZE + MARGIN_SIZE, y * BLOCK_SIZE + MARGIN_SIZE, 46, 46);
+            }
+        }
+    }
+};
+
+// 特定の方向に配置してあるひっくり返せる石の情報を集める
+banmen.collectStones = function (x, y, color, direction) {
+    const stoneColorToReverse = color === WHITE ? BLACK : WHITE; // 手番ではない石の色
+    const FIRST_COLUMN_INDEX = 0
+    const LAST_COLUMN_INDEX = 7
+    const stones = [];
+    // 最大7回繰り返し、石の情報を集める
+    for (let i = FIRST_COLUMN_INDEX; i < LAST_COLUMN_INDEX; i++) {
+        x += direction.x;
+        y += direction.y;
+
+        // 盤面の外なので、ループ処理を抜ける
+        if (x > LAST_COLUMN_INDEX || x < FIRST_COLUMN_INDEX || y > LAST_COLUMN_INDEX || y < FIRST_COLUMN_INDEX) break;
+        // 何も置いてないマスがある場合、ループ処理を抜ける
+        if (this[y][x] === 0) break;
+        // 石の情報を配列に追加
+        stones.push(new Stone(x, y, this[y][x]));
+        // 先頭以外で、自分の色が出たらその時点でループ処理を抜ける
+        if (this[y][x] === color) break;
     }
     
-    // どこに石を置いたか記憶する
-    playBoard[posY][posX] = player // 1:white 2:black とする
-    changePlayer()
-    console.log(playBoard)
+    // 一つ以下しか配列がない場合、ひっくり返せない
+    // ひっくり返せない状況の場合は、空の配列を返す
+    if (stones.length <= 1) return [];
+    // 配列の先頭が相手の石の色でない場合、ひっくり返せない
+    if (stones[0].color !== stoneColorToReverse) return []; 
+    // 末尾の石の色が自分と同じ色でない場合、ひっくり返せない
+    if (stones[stones.length - 1].color !== color) return [];
+
+    return stones;
 }
 
-// 初期配置を行う関数
-function initialize(){
-    putStone(140, 140, 1)
-    putStone(180, 140, 2)
-    putStone(140, 180, 2)
-    putStone(180, 180, 1)
-    playBoard[3][3] = 1
-    playBoard[3][4] = 2
-    playBoard[4][3] = 2
-    playBoard[4][4] = 1
+banmen.drawReversiFiledLines();
+banmen.refresh();
+// 盤面データ ----------
+
+class Stone {
+    constructor(x, y, color) {
+        this.x = x;
+        this.y = y;
+        this.color = color;
+    }
 }
 
-// 初期配置を実装
-initialize()
+// 石がその位置に置けるかを調べる関数
+function canPutStone(originX, originY, color, simulation = false) {
+    let allStones = []; // ひっくり返せる石を格納しておく配列
+
+    if(banmen[originY][originX] !== 0) return false; // 空じゃないマスには置けない
+    
+    // 石を置きたい場所の八方向それぞれについて石がどのように配置されているか調べる
+    directions.forEach((direction) => {
+        // 特定方向で、ひっくり返せる石の情報を配列に貯める
+        const stones = banmen.collectStones(originX, originY, color, direction);
+        console.log('stones:' + stones)
+        // ひっくり返せる全ての石の配列を作る
+        //allStones = [...allStones, ...stones]
+        allStones = allStones.concat(stones)
+    });
+
+    // ひっくり返せる石があるか？
+    const canReverse = allStones.length > 0
+    // シミュレーションの場合は、ひっくり返せるかだけ返す
+    // この機能を使って、ひっくり返せる位置をユーザーに知らせる仕組みが作れる
+    if (simulation) return canReverse;
+        
+    // 本番(実際に石を引っくり返す)
+    if (canReverse) {
+        // ひっくり返せる場合の処理
+        allStones.push(new Stone(originX, originY, color));
+        allStones.forEach(stone => drawStone(stone.x, stone.y, color)); // 自分の色にひっくりかえす
+
+        // 手番の交代
+        changePlayer();
+        // 石の配置を盤面に反映する
+        banmen.refresh();
+        // ハイライト表示する
+        banmen.highlight();
+    }
+    return canReverse;
+}
+
+// クリックした時に石を置く関数
+canvas.onclick = (e) => {
+    var rect = e.target.getBoundingClientRect();
+    mouseX = e.clientX - Math.floor(rect.left);
+    mouseY = e.clientY - Math.floor(rect.top);
+    const posX = Math.round((mouseX - BLOCK_SIZE/2) / BLOCK_SIZE);
+    const posY = Math.round((mouseY - BLOCK_SIZE/2) / BLOCK_SIZE);
+
+    // 石を置けるか判定
+    if (!canPutStone(posX, posY, currentPlayer === "white" ? 1 : 2, false)) {
+        alert("そこには置けません 手番: " + currentPlayer); // 置ける場合は置く
+    }
+};
+
+// x,y座標を指定して石を置く関数
+function drawStone(x, y, color) {
+    if (color === 1) {
+        ctx.fillStyle = "white";
+    } else if (color === 2) {
+        ctx.fillStyle = "black";
+    } else {
+        return; // 何もしない
+    }
+    banmen[y][x] = color;
+    ctx.beginPath();
+    ctx.arc(25 + x * 50, 25 + y * 50, 22, 0, 2 * Math.PI);
+    ctx.fill();
+}
