@@ -124,7 +124,7 @@ banmen.collectStones = function (x, y, color, direction) {
     return stones;
 }
 
-banmen.drawReversiFiledLines();
+// banmen.drawReversiFiledLines();
 banmen.refresh();
 // 盤面データ ----------
 
@@ -146,7 +146,7 @@ function canPutStone(originX, originY, color, simulation = false) {
     directions.forEach((direction) => {
         // 特定方向で、ひっくり返せる石の情報を配列に貯める
         const stones = banmen.collectStones(originX, originY, color, direction);
-        console.log('stones:' + stones)
+        // console.log('stones:' + stones)
         // ひっくり返せる全ての石の配列を作る
         //allStones = [...allStones, ...stones]
         allStones = allStones.concat(stones)
